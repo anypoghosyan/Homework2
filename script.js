@@ -1,55 +1,63 @@
 class DomElement {
-    constructor(options) {
-      this.options = options;
-    }
-  
-    draw() {}
+  constructor(type, attributes, children = []) {
+    this.type = type;
+    this.attributes = attributes;
+    this.children = children;
   }
-  
-  class DivElement extends DomElement {
-    constructor(type, attributes, children) {
-      super();
-      this.type = type,
-      this.attributes = attributes,
-      this.children = children
+
+  draw() {
+    const elem = document.createElement(this.type);
+    const attributes = this.attributes;
+
+    for (let [key, val] of Object.entries(attributes)) {
+      elem.setAttribute(key, val);
     }
-  
-    draw = () => {
-      const div = document.createElement(this.type);
-  
-      for (let key in this.attributes) {
-        div.setAttribute(key, this.attributes[key]);
+
+    this.children.forEach((child) => {
+      let childEl =
+        child instanceof DomElement
+          ? child.draw()
+          : document.createTextNode(child);
+      elem.appendChild(childEl);
+    });
+    return elem;
+  }
+}
+
+class DivElement extends DomElement {
+  constructor(attributes) {
+      super(type, attributes, children)
+  }
+
+  draw(){
+      super.draw();
+
+      for (let [key, val] of Object.entries(attributes)) {
+          elem.setAttribute(key, val);
       }
-  
-      this.child.forEach((children) => {
-        if (typeof children === "string") {
-          div.appendChild(document.createTextNode(children));
-        } else {
-          if (children === null) {
-            div.appendChild(document.createTextNode(""));
-          } else {
-            for (let i = 0; i < children.length; i++) {
-              div.appendChild(children[i].draw());
-            }
-  
-            if (children.length === undefined) {
-              div.appendChild(children.draw());
-            }
-          }
-        }
-      });
-  
-      return div;
-    };
   }
-  
-  const el = (type, attributes, children) => {
-    const element = new DivElement(type, attributes, children);
-  
-    return element;
-  };
-  
-  // const tree1 = el("div", {"class": "some_classname", "id": "some_id"},
-  // el("span", {}, 'hello')
-  // );
-  
+}
+
+class SpanElement extends DomElement {
+  constructor(attributes) {
+      super(type, attributes, children)
+  }
+
+  draw(){
+      super.draw();
+  }
+}
+
+
+let el = (type, attributes, children) => {
+  switch (type){
+      case 'div':
+          return new DivElement(type, attributes, children);
+      break;
+      case 'span':
+          return new SpanElement(type, attributes, children);
+      break;
+      default:
+          return new DomElement(type, attributes, children);
+  }
+}
